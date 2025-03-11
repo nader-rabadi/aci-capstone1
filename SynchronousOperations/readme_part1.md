@@ -241,7 +241,7 @@ Onboarding Serverless App on AWS.</p></figcaption>
     third-party license validator. The message body in the SQS queue is
     in the following JSON format:
 
-```json
+```
 {
 	'driver_license_id': <id>,       # where <id> is the license ID DOCUMENT_NUMBER
 	'validation_override': <status>, # where <status> can be set to True (for valid ID) or False
@@ -255,7 +255,7 @@ Onboarding Serverless App on AWS.</p></figcaption>
     the customer’s driver’s license ID. The event that triggers this
     Lambda function is in the following JSON format:
 
-```json
+```
 record = {'body':
 '{”driver_license_id”: <id>,       # where <id> is the license ID DOCUMENT_NUMBER
   ”validation_override”: <status>, # where <status> can be set to True (for valid ID)   
@@ -271,7 +271,7 @@ record = {'body':
     only the ”driver_license_id” and ”validation_override” are sent in
     the HTTP POST. The message body is in the following JSON format:
 
-```json
+```
 {
 	'body':
 		'{”driver_license_id”: <id>,       # where <id> is the license ID DOCUMENT_NUMBER
