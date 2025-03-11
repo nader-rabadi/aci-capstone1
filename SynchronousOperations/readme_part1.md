@@ -52,13 +52,16 @@ This project builds and deploys the necessary AWS services that the bank
 uses to validate and verify the customer’s personal details, selfie
 image, and driver’s license. As depicted in Figure 1, the AWS services
 that are utilized in this project are:
-
+<br><br>
 <figure>
 <img src="./images_part1/media/image1.png"
 style="width:5.77083in;height:7.23512in" />
-<figcaption><p>Figure 1 Architecture of the Customer Onboarding
+<figcaption><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Figure 1 Architecture of the Customer Onboarding
 Serverless App using AWS services.</p></figcaption>
 </figure>
+<br><br>
 
 1.  *<u>Amazon S3</u>*: This object storage service is used to store the
     customer’s .csv file, driver’s license image, selfie image, and the
@@ -127,19 +130,30 @@ Serverless App using AWS services.</p></figcaption>
 
 The sequence of operations is shown in Figure 2 and is described as
 follows:
+<br><br>
+<figure>
+<img src="./images_part1/media/image2.png"
+style="width:6.49583in;height:4.62431in" />
+<figcaption><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Figure 2 Sequence of Operations of the Customer
+Onboarding Serverless App on AWS.</p></figcaption>
+</figure>
+<br><br>
+
 
 1)  The process starts when the bank’s mobile app uploads the .zip file
     to the bank’s Amazon S3 bucket to the **zipped/** prefix.
 
-- The .zip filename is: **\<app_uuid\>.zip** ; where \<app_uuid\> is the
-  unique customer identification number that was assigned by the bank’s
-  mobile app. For example, if the unique customer identification number
-  is 98765432, then the .zip filename is: 98765432.zip
+    - The .zip filename is: **\<app_uuid\>.zip** ; where \<app_uuid\> is the
+      unique customer identification number that was assigned by the bank’s
+      mobile app. For example, if the unique customer identification number
+      is 98765432, then the .zip filename is: 98765432.zip
 
-- The bucket name is: **documentbucket-\<AccountID\>** ; where
-  \<AccountID\> is the AWS Account ID of the bank. For example, if the
-  AWS Account ID is 1234-5678-9012, then the bucket name is:
-  documentbucket-123456789012
+    - The bucket name is: **documentbucket-\<AccountID\>** ; where
+      \<AccountID\> is the AWS Account ID of the bank. For example, if the
+      AWS Account ID is 1234-5678-9012, then the bucket name is:
+      documentbucket-123456789012
 
 2)  Uploading the .zip file to the Amazon S3 bucket automatically
     triggers an event to invoke an AWS Lambda function. This function is
@@ -152,13 +166,13 @@ follows:
     Lambda’s internal memory **tmp/unzipped**. There are three objects
     in the .zip file:
 
-- The .csv file that contains the customer’s personal details. The
-  filename is: **\<app_uuid\>\_details.csv**
+    - The .csv file that contains the customer’s personal details. The
+      filename is: **\<app_uuid\>\_details.csv**
 
-- The selfie image. The filename is: **\<app_uuid\>\_selfie.png**
+    - The selfie image. The filename is: **\<app_uuid\>\_selfie.png**
 
-- The driver’s license image. The filename is:
-  **\<app_uuid\>.\_license.png**
+    - The driver’s license image. The filename is:
+      **\<app_uuid\>.\_license.png**
 
 5)  The **DocumentLambdaFunction** writes the three objects to the same
     Amazon S3 bucket but to the **unzipped/** prefix.
@@ -166,39 +180,26 @@ follows:
 6)  The **DocumentLambdaFunction** parses the .csv file into a
     dictionary. Then it writes this dictionary to Amazon DynamoDB table.
 
-- The Amazon DynamoDB table name is: **CustomerMetadataTable**
+    - The Amazon DynamoDB table name is: **CustomerMetadataTable**
 
-- The partition key: HASH of **\<app_uuid\>**
+    - The partition key: HASH of **\<app_uuid\>**
 
-- The .csv file contains the following personal details:
-
-> FIRST_NAME
->
-> LAST_NAME
->
-> CITY_IN_ADDRESS
->
-> ZIP_CODE_IN_ADDRESS
->
-> STATE_IN_ADDRESS
->
-> DOCUMENT_NUMBER
->
-> DATE_OF_BIRTH
->
-> ADDRESS
+    - The .csv file contains the following personal details:
+```
+        FIRST_NAME
+        LAST_NAME
+        CITY_IN_ADDRESS
+        ZIP_CODE_IN_ADDRESS
+        STATE_IN_ADDRESS
+        DOCUMENT_NUMBER
+        DATE_OF_BIRTH
+        ADDRESS
+```
 
 7)  The **DocumentLambdaFunction** calls Amazon Rekognition to compare
     the selfie image in **\<app_uuid\>\_selfie.png** file with any
     detected image in the driver’s license
     **\<app_uuid\>.\_license.png** file.
-
-<figure>
-<img src="./images_part1/media/image2.png"
-style="width:6.49583in;height:4.62431in" />
-<figcaption><p>Figure 2 Sequence of Operations of the Customer
-Onboarding Serverless App on AWS.</p></figcaption>
-</figure>
 
 8)  If the comparison fails (i.e. a match is not found), then the
     **DocumentLambdaFunction** calls Amazon SNS to publish a message
@@ -208,9 +209,9 @@ Onboarding Serverless App on AWS.</p></figcaption>
     (using the partition key **\<app_uuid\>**) with the comparison
     result in the attribute LICENSE_SELFIE_MATCH.
 
-- LICENSE_SELFIE_MATCH is True if a match is found
+    - LICENSE_SELFIE_MATCH is True if a match is found
 
-- LICENSE_SELFIE_MATCH is False if there a match is not found
+    - LICENSE_SELFIE_MATCH is False if there a match is not found
 
 10) The **DocumentLambdaFunction** calls Amazon Textract to extract
     pieces of text information from the customer’s driver’s license
@@ -228,11 +229,11 @@ Onboarding Serverless App on AWS.</p></figcaption>
     (using the partition key **\<app_uuid\>**) with the comparison
     result in the attribute LICENSE_DETAILS_MATCH.
 
-- LICENSE_DETAILS_MATCH is True if the personal details match the
-  driver’s license information.
+    - LICENSE_DETAILS_MATCH is True if the personal details match the
+      driver’s license information.
 
-- LICENSE_DETAILS_MATCH is False if the personal details do not match
-  the driver’s license information.
+    - LICENSE_DETAILS_MATCH is False if the personal details do not match
+      the driver’s license information.
 
 14) The **DocumentLambdaFunction** put in Amazon SQS queue the
     customer’s driver’s license ID (which is the same DOCUMENT_NUMBER in
@@ -245,8 +246,8 @@ Onboarding Serverless App on AWS.</p></figcaption>
 {
 	'driver_license_id': <id>,       # where <id> is the license ID DOCUMENT_NUMBER
 	'validation_override': <status>, # where <status> can be set to True (for valid ID) or False
-									 # (for invalid ID). This is used for testing purpose. It is not 
-									 # used in real-life scenario.
+                                         # (for invalid ID). This is used for testing purpose. It is not 
+                                         # used in real-life scenario.
 	'uuid': <appuuid>,               # where <appuuid> is the customer’s <app_uuid>
 }
 ```
@@ -276,9 +277,9 @@ record = {'body':
 	'body':
 		'{”driver_license_id”: <id>,       # where <id> is the license ID DOCUMENT_NUMBER
 		”validation_override”: <status>,   # where <status> can be set to True (for valid ID)   
-										   # or False (for invalid ID). This is used for testing  
-										   # purpose. It is not used in real-life scenario.
-	'
+                                                   # or False (for invalid ID). This is used for testing  
+                                                   # purpose. It is not used in real-life scenario.
+                '
 }
 ```
 
@@ -291,11 +292,12 @@ record = {'body':
     table (using the partition key **\<app_uuid\>**) with the comparison
     result in the attribute LICENSE_VALIDATION.
 
-- LICENSE_VALIDATION is True if the customer’s driver’s license ID is
-  valid.
+    - LICENSE_VALIDATION is True if the customer’s driver’s license ID is
+      valid.
 
-- LICENSE_VALIDATION is False if the customer’s driver’s license ID is
-  invalid.
+    - LICENSE_VALIDATION is False if the customer’s driver’s license ID is
+      invalid.
+<br><br>
 
 # Third-Party License Validator Operations:
 
@@ -313,13 +315,14 @@ the third-party license validator, and is described as follows:
 
 4)  The API Gateway responds to the **SubmitLicenseLambdaFunction** with
     the value of ”validation_override” and the HTTP status code of 200.
-
+<br><br>
 <figure>
 <img src="./images_part1/media/image3.png"
 style="width:3.58403in;height:2.51181in" />
 <figcaption><p>Figure 3 Sequence of Operations of the Third-Party
 License Validator.</p></figcaption>
 </figure>
+<br><br>
 
 # Instructions:
 
