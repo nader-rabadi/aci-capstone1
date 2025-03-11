@@ -27,32 +27,29 @@ following AWS Lambda functions:
 
 1.  **UnzipLambdaFunction**: It performs the following tasks:
 
-<!-- -->
+    -   Downloads the .zip file from S3 Bucket’s **zipped/** prefix into
+        Lambda’s internal memory.
 
--   Downloads the .zip file from S3 Bucket’s **zipped/** prefix into
-    Lambda’s internal memory.
+    -   Unzips the file and uploads its individual files to S3 Bucket’s
+        **unzipped/** prefix.
 
--   Unzips the file and uploads its individual files to S3 Bucket’s
-    **unzipped/** prefix.
+    -   Extracts the **app-uuid** value from the .zip file.
 
--   Extracts the **app-uuid** value from the .zip file.
-
-> The function expects the following Lambda event:
+    The function expects the following Lambda event:
 
 ```json
 {
 	"detail": {
    		"bucket":  {
-       	    "name": "documentbucket-<AccountID>"
+                "name": "documentbucket-<AccountID>"
    	    },
 	    "object":  {
        	    "key":  "zipped/<app-uuid>.zip"
-   		}
+            }
 	}
 }
 ```
-
-> The function is expected to return the following response:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The function is expected to return the following response:
 
 ```json
 {
@@ -62,18 +59,16 @@ following AWS Lambda functions:
 
 2.  **WriteToDynamoLambdaFunction**: It performs the following tasks:
 
-<!-- -->
+    -   Downloads the .csv file from S3 Bucket's **unzipped/** prefix into
+        Lambda's internal memory.
 
--   Downloads the .csv file from S3 Bucket's **unzipped/** prefix into
-    Lambda's internal memory.
+    -   Parses the .csv file into a dictionary.
 
--   Parses the .csv file into a dictionary.
+    -   Writes the contents of the dictionary to DynamoDB table
+        **CustomerMetadataTable** using the **app-uuid** as the partition
+        key.
 
--   Writes the contents of the dictionary to DynamoDB table
-    **CustomerMetadataTable** using the **app-uuid** as the partition
-    key.
-
-> The function expects the following Lambda event:
+    The function expects the following Lambda event:
 
 ```json
 {
@@ -87,8 +82,7 @@ following AWS Lambda functions:
     }
 }
 ```
-
-> The function is expected to return the following response:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The function is expected to return the following response:
 
 ```
 {
@@ -98,26 +92,24 @@ following AWS Lambda functions:
 }
 ```
 
-> This response will be sent later to Amazon SQS queue in such a way
-> that the **SubmitLicenseLambdaFunction** can process it.
+This response will be sent later to Amazon SQS queue in such a way
+that the **SubmitLicenseLambdaFunction** can process it.
 
 3.  **CompareFacesLambdaFunction**: It performs the following tasks:
 
-<!-- -->
+    -   Calls Amazon Rekognition to compare the selfie image in
+        **\<app_uuid\>\_selfie.png** with any detected image in the driver's
+        license **\<app_uuid\>\_license.png** file.
 
--   Calls Amazon Rekognition to compare the selfie image in
-    **\<app_uuid\>\_selfie.png** with any detected image in the driver's
-    license **\<app_uuid\>\_license.png** file.
+    -   If the comparison fails (i.e. a match is not found), then the it
+        calls Amazon SNS to publish a message (using an email for example)
+        to inform the bank.
 
--   If the comparison fails (i.e. a match is not found), then the it
-    calls Amazon SNS to publish a message (using an email for example)
-    to inform the bank.
+    -   Updates the Amazon DynamoDB table (using the partition key
+        **\<app_uuid\>**) with the comparison result in the attribute
+        **LICENSE_SELFIE_MATCH**.
 
--   Updates the Amazon DynamoDB table (using the partition key
-    **\<app_uuid\>**) with the comparison result in the attribute
-    **LICENSE_SELFIE_MATCH**.
-
-> The function expects the following Lambda event:
+    The function expects the following Lambda event:
 
 ```json
 {
@@ -131,8 +123,7 @@ following AWS Lambda functions:
     }
 }
 ```
-
-> The function is expected to return the following response:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The function is expected to return the following response:
 
 ```json
 {
@@ -143,25 +134,23 @@ following AWS Lambda functions:
 
 4.  **CompareDetailsLambdaFunction**: It performs the following tasks:
 
-<!-- -->
+    -   Calls Amazon Textract to extract pieces of text information from the
+        customer’s driver’s license image **\<app_uuid\>.\_license.png**
+        file.
 
--   Calls Amazon Textract to extract pieces of text information from the
-    customer’s driver’s license image **\<app_uuid\>.\_license.png**
-    file.
+    -   Compares the extracted text with the contents of the .csv file
+        **\<app_uuid\>\_details.csv**.
 
--   Compares the extracted text with the contents of the .csv file
-    **\<app_uuid\>\_details.csv**.
+    -   If the comparison fails (i.e. the personal details that the customer
+        provided do not match the details in the driver’s license), then the
+        it calls Amazon SNS to publish a message (using an email for
+        example) to inform the bank.
 
--   If the comparison fails (i.e. the personal details that the customer
-    provided do not match the details in the driver’s license), then the
-    it calls Amazon SNS to publish a message (using an email for
-    example) to inform the bank.
+    -   Updates the Amazon DynamoDB table (using the partition key
+        **\<app_uuid\>**) with the comparison result in the attribute
+        **LICENSE_DETAILS_MATCH**.
 
--   Updates the Amazon DynamoDB table (using the partition key
-    **\<app_uuid\>**) with the comparison result in the attribute
-    **LICENSE_DETAILS_MATCH**.
-
-> The function expects the following Lambda event:
+    The function expects the following Lambda event:
 
 ```json
 {
@@ -175,8 +164,7 @@ following AWS Lambda functions:
     }
 }
 ```
-
-> The function is expected to return the following response:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The function is expected to return the following response:
 
 ```json
 {
@@ -214,14 +202,17 @@ state machine. The state machine consists of six states:
 6.  **FailState** State: No operations are performed in this state, and
     the state machine concludes.
 
-> In the **template.yaml** file, the **DocumentStateMachine** describes
-> this state machine workflow.
+In the **template.yaml** file, the **DocumentStateMachine** describes
+this state machine workflow.
+<br><br>
 
 <img src="./images_part2/media/image1.png"
 style="width:6.49583in;height:7.96389in" />
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Figure 1 Architecture diagram of asynchronous operations using a state
 machine workflow.
+<br><br>
 
 # Instructions:
 
@@ -427,7 +418,7 @@ DynamoDBPolicy:
 }
 ```
 
-AWSLambdaSQSQueueExecutionRole
+AWSLambdaSQSQueueExecutionRole:
 
 ```json
 {
@@ -572,12 +563,13 @@ operations fail.
 <img src="./images_part2/media/image2.png"
 style="width:3.25in;height:3.14806in" />
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Figure 2 AWS Step Functions state machine operating successfully.  
 <br>
 <br>
 
-
 <img src="./images_part2/media/image3.png"
 style="width:3.35086in;height:3.28846in" />
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Figure 3 AWS Step Functions state machine operation failure.
