@@ -29,13 +29,13 @@ following AWS Lambda functions:
 
 <!-- -->
 
-1)  Downloads the .zip file from S3 Bucket’s **zipped/** prefix into
+-   Downloads the .zip file from S3 Bucket’s **zipped/** prefix into
     Lambda’s internal memory.
 
-2)  Unzips the file and uploads its individual files to S3 Bucket’s
+-   Unzips the file and uploads its individual files to S3 Bucket’s
     **unzipped/** prefix.
 
-3)  Extracts the **app-uuid** value from the .zip file.
+-   Extracts the **app-uuid** value from the .zip file.
 
 > The function expects the following Lambda event:
 
@@ -64,12 +64,12 @@ following AWS Lambda functions:
 
 <!-- -->
 
-1)  Downloads the .csv file from S3 Bucket's **unzipped/** prefix into
+-   Downloads the .csv file from S3 Bucket's **unzipped/** prefix into
     Lambda's internal memory.
 
-2)  Parses the .csv file into a dictionary.
+-   Parses the .csv file into a dictionary.
 
-3)  Writes the contents of the dictionary to DynamoDB table
+-   Writes the contents of the dictionary to DynamoDB table
     **CustomerMetadataTable** using the **app-uuid** as the partition
     key.
 
@@ -90,11 +90,11 @@ following AWS Lambda functions:
 
 > The function is expected to return the following response:
 
-```json
+```
 {
     "driver_license_id": <dirverlicensenumber>,
     "validation_override": <true_or_false>,
-    "app_uuid": "< app-uuid >"
+    "app_uuid": "<app-uuid>"
 }
 ```
 
@@ -105,15 +105,15 @@ following AWS Lambda functions:
 
 <!-- -->
 
-1)  Calls Amazon Rekognition to compare the selfie image in
+-   Calls Amazon Rekognition to compare the selfie image in
     **\<app_uuid\>\_selfie.png** with any detected image in the driver's
     license **\<app_uuid\>\_license.png** file.
 
-2)  If the comparison fails (i.e. a match is not found), then the it
+-   If the comparison fails (i.e. a match is not found), then the it
     calls Amazon SNS to publish a message (using an email for example)
     to inform the bank.
 
-3)  Updates the Amazon DynamoDB table (using the partition key
+-   Updates the Amazon DynamoDB table (using the partition key
     **\<app_uuid\>**) with the comparison result in the attribute
     **LICENSE_SELFIE_MATCH**.
 
@@ -136,7 +136,7 @@ following AWS Lambda functions:
 
 ```json
 {
-    "status": "<success_or_failure>,
+    "status": "<success_or_failure>",
     "message": "Selfie Comparison <successful_or_failed>"
 }
 ```
@@ -145,19 +145,19 @@ following AWS Lambda functions:
 
 <!-- -->
 
-1)  Calls Amazon Textract to extract pieces of text information from the
+-   Calls Amazon Textract to extract pieces of text information from the
     customer’s driver’s license image **\<app_uuid\>.\_license.png**
     file.
 
-2)  Compares the extracted text with the contents of the .csv file
+-   Compares the extracted text with the contents of the .csv file
     **\<app_uuid\>\_details.csv**.
 
-3)  If the comparison fails (i.e. the personal details that the customer
+-   If the comparison fails (i.e. the personal details that the customer
     provided do not match the details in the driver’s license), then the
     it calls Amazon SNS to publish a message (using an email for
     example) to inform the bank.
 
-4)  Updates the Amazon DynamoDB table (using the partition key
+-   Updates the Amazon DynamoDB table (using the partition key
     **\<app_uuid\>**) with the comparison result in the attribute
     **LICENSE_DETAILS_MATCH**.
 
@@ -180,7 +180,7 @@ following AWS Lambda functions:
 
 ```json
 {
-    "status": "<success_or_failure>,
+    "status": "<success_or_failure>",
     "message": "ID Information Comparison <successful_or_failed>"
 }
 ```
@@ -572,7 +572,10 @@ operations fail.
 <img src="./images_part2/media/image2.png"
 style="width:3.25in;height:3.14806in" />
 
-Figure 2 AWS Step Functions state machine operating successfully.
+Figure 2 AWS Step Functions state machine operating successfully.  
+<br>
+<br>
+
 
 <img src="./images_part2/media/image3.png"
 style="width:3.35086in;height:3.28846in" />
