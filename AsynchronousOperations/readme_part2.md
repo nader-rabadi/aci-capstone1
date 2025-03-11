@@ -43,10 +43,10 @@ following AWS Lambda functions:
 {
 	"detail": {
    		"bucket":  {
-       	"name": "documentbucket-<AccountID>"
-   	},
-	"object":  {
-       	"key":  "zipped/<app-uuid>.zip"
+       	    "name": "documentbucket-<AccountID>"
+   	    },
+	    "object":  {
+       	    "key":  "zipped/<app-uuid>.zip"
    		}
 	}
 }
@@ -81,9 +81,9 @@ following AWS Lambda functions:
         "bucket":  {
             "name": "documentbucket-<AccountID>"
         },
-    }
+    },
     "application":  {
-            "app_uuid":  "<app-uuid>"
+        "app_uuid":  "<app-uuid>"
     }
 }
 ```
@@ -125,7 +125,7 @@ following AWS Lambda functions:
         "bucket":  {
             "name": "documentbucket-<AccountID>"
         },
-    }
+    },
     "application":  {
             "app_uuid":  "<app-uuid>"
     }
@@ -169,7 +169,7 @@ following AWS Lambda functions:
         "bucket":  {
             "name": "documentbucket-<AccountID>"
         },
-    }
+    },
     "application":  {
             "app_uuid":  "<app-uuid>"
     }
