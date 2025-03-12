@@ -6,11 +6,11 @@
 
 # Overview
 
-This capstone project, part of the AWS Cloud Institute - Cloud
-Application Developer Track, offers a hands-on, challenge-based lab
-where I used AWS services and the Boto3 Python library to develop and
-build a serverless application on AWS. The project involved utilizing
-various AWS services, including S3, DynamoDB, SNS, SQS, Lambda,
+This capstone project, part of the AWS Cloud Institute's Cloud
+Application Developer Track, provided a hands-on, challenge-based lab
+experience where I leveraged AWS services and the Boto3 Python library
+to design and build a serverless application on AWS. The project involved
+integrating a range of AWS services, such as S3, DynamoDB, SNS, SQS, Lambda,
 Rekognition, Textract, SAM, API Gateway, Step Functions, and IAM
 Permission Policies and Roles.
 
